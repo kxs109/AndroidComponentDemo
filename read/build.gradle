@@ -1,0 +1,59 @@
+//1.控制组件模式和集成模式
+if (rootProject.ext.isReadApplication) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion rootProject.ext.android["compileSdkVersion"]
+    defaultConfig {
+        minSdkVersion rootProject.ext.android["minSdkVersion"]
+        targetSdkVersion rootProject.ext.android["targetSdkVersion"]
+        versionCode rootProject.ext.android["versionCode"]
+        versionName rootProject.ext.android["versionName"]
+
+        //2.组件模式下设置applicationId
+        if (rootProject.ext.isReadApplication){
+            applicationId "com.kxs.component.read"
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.getName()]
+            }
+        }
+
+    }
+    //3.组件模式下设置配置文件
+    sourceSets {
+        main {
+            if (rootProject.ext.isReadApplication) {
+                manifest.srcFile 'src/main/module/AndroidManifest.xml'
+            } else {
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+            }
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':lib_common')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    kapt rootProject.ext.routeDependencies["router-compiler"]
+
+}
+repositories {
+    mavenCentral()
+}
